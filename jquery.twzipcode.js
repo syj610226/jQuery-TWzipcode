@@ -1,6 +1,6 @@
 /**
  * The MIT License
- * Copyright (c) 2014 Essoduke Chang. http://essoduke.org
+ * Copyright (c) 2015 Essoduke Chang. http://essoduke.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,10 @@
  *
  * @author Essoduke Chang
  * @see http://app.essoduke.org/twzipcode/
- * @version 1.6.7
+ * @version 1.7.0
  *
  * [Changelog]
- * 恢復 detect(bool) 參數的支援，可設置是否自動讀取用戶的位置（瀏覽器需 GeoLocation API 支援）
+ * 修正 html5 data-value 優先於 countySel, districtSel, zipcodeSel 的問題。
  *
  * Last Modified 2014.08.29.143917
  */
@@ -180,7 +180,8 @@
             'readonly': false,
             'zipcodeName': 'zipcode',
             'zipcodeSel': '',
-            'zipcodeIntoDistrict': false // v1.6.6
+            'zipcodeIntoDistrict': false, // v1.6.6
+            'googleMapsKey': '' // v1.6.9
         };
         /**
          * DOM of selector
@@ -200,7 +201,7 @@
      */
     TWzipcode.prototype = {
 
-        VERSION: '1.6.7',
+        VERSION: '1.7.0',
 
         /**
          * Method: Get all post data
@@ -368,17 +369,29 @@
                 }
             });
 
-            dz = undefined !== self.role.zipcode.data('value') ?
-                 self.role.zipcode.data('value') :
-                 opts.zipcodeSel;
+            dz = opts.zipcodeSel ?
+                 opts.zipcodeSel :
+                 (
+                    undefined !== self.role.zipcode.data('value') ?
+                    self.role.zipcode.data('value') :
+                    opts.zipcodeSel
+                 );
 
-            dc = undefined !== self.role.county.data('value') ?
-                 self.role.county.data('value') :
-                 (_hasOwnProperty(data, opts.countySel) ? opts.countySel : '');
+            dc = opts.countySel ?
+                 opts.countySel :
+                 (
+                    undefined !== self.role.county.data('value') ?
+                    self.role.county.data('value') :
+                    opts.countySel
+                 );
 
-            dd = undefined !== self.role.district.data('value') ?
-                 self.role.district.data('value') :
-                 opts.districtSel;
+            dd = opts.districtSel ?
+                 opts.districtSel :
+                 (
+                    undefined !== self.role.district.data('value') ?
+                    self.role.district.data('value') :
+                    opts.districtSel
+                 );
 
             // Default value
             if (dc) {
@@ -403,7 +416,8 @@
                     'maximumAge': 600000,
                     'timeout': 3000,
                     'enableHighAccuracy': false
-                };
+                },
+                opts = self.options;
 
             if (!geolocation) {
                 return;
@@ -412,16 +426,17 @@
             geolocation.getCurrentPosition(
                 function (loc) {
                     var latlng = {};
-                    if (_hasOwnProperty(loc, 'coords') &&
-                        _hasOwnProperty(loc.coords, 'latitude') &&
-                        _hasOwnProperty(loc.coords, 'longitude')
+                    if (('coords' in loc) &&
+                        ('latitude' in loc.coords) &&
+                        ('longitude' in loc.coords)
                     ) {
                         latlng = [loc.coords.latitude, loc.coords.longitude];
                         $.getJSON(
-                            '//maps.googleapis.com/maps/api/geocode/json',
+                            'https://maps.googleapis.com/maps/api/geocode/json',
                             {
+                                'key': opts.googleMapsKey,
                                 'sensor' : false,
-                                'address': latlng.join(',')
+                                'latlng': latlng.join(',')
                             },
                             function (data) {
                                 var postal = '';
