@@ -2,7 +2,7 @@
 
 在網頁建立多組 3 碼台灣郵遞區號表單元素的 jQuery Plugin ─ 讀取快速、不需使用資料庫。
 
-[範例展示 Live Demo](http://app.essoduke.org/twzipcode/)
+[範例展示 Live Demo](https://code.essoduke.org/twzipcode/)
 
 
 \* **jQuery-TWzipcode v1.5 以後版本需 jQuery v1.6（支援 2.0）**
@@ -23,6 +23,11 @@ Example
 $(selector).twzipcode({
   language: 'lang/zh-tw' //不需加上 .js
 });
+```
+## 安裝 Install
+### bower
+```
+$bower install jquery-TWzipcode
 ```
 
 ## 使用 Usage
@@ -118,6 +123,32 @@ console.log(data);
 $(selector).twzipcode('destroy');
 ```
 
+###get
+```javascript
+$(selector).twzipcode('get', function (el) {
+    /*
+     * {
+     *     county: Object,
+     *     district: Object,
+     *     zipcode: Object
+     * }
+     */
+     console.log($(el.county).val()); // 輸出 county 的值
+});
+```
+
+###set
+```javascript
+// 直接設置郵遞區號
+$(selector).twzipcode('set', 110);
+// 傳入縣市、鄉鎮市區
+$(selector).twzipcode('set', {
+    'county': '台北市',
+    'district': '信義區',
+    'zipcode': 110
+});
+```
+
 ### reset
 將指定的元素恢復未選狀態
 ```javascript
@@ -176,7 +207,7 @@ $('#container').twzipcode({
 ```
 ## 支援
 
-請拜訪 http://app.essoduke.org/twzipcode/ 取得支援。
+請拜訪 https://code.essoduke.org/twzipcode/ 取得支援。
 
 ## 授權
 
